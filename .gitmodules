@@ -1,0 +1,3 @@
+[submodule "Codice/Legacy/packages"]
+	path = Codice/Legacy/packages
+	url = https://github.com/Laplaxe/packages_MLMC.git
