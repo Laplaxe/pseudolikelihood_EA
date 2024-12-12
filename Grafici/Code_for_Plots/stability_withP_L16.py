@@ -36,7 +36,7 @@ plt.plot(all_ms_np[:, 0], all_ms_np[:, 1], marker='o', linestyle='-', color='tea
 plt.plot(all_ms_np[:, 0], all_ms_np[:, 2], marker='o', linestyle='-', color='firebrick', label='Magnetization test')
 # Plot horizontal line at magnetization perfect
 plt.axhline(y=asymptotics["m_perf"].values[0], color='black', linestyle='--', label=r'$P = \infty$')
-plt.axhline(y=asymptotics["m_train"].values[0], color='darkgray', linestyle='-.', label='P = 130072')
+plt.axhline(y=asymptotics["m_train"].values[0], color='darkgray', linestyle='-.', label='P = 131072')
 
 
 # Adding labels and title
