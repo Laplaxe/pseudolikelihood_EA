@@ -137,52 +137,60 @@ if __name__ == "__main__":
     zero_temp_dynamics_steps = 1000 #number of zero temperature dynamics steps to perform (both for training and test)
     Pvalues = np.concatenate((np.arange(1, 30, 2), np.logspace(np.log10(31), np.log10(15000), num=200, dtype=int))) # number of training data on which to loop
 
-    #train the model for various sizes of the training set and then save the observables of interest
-    #aggiungi distanza GS e energia media
     all_ms = []
-    for P in Pvalues: #loop over all the numbers of traiing data
-        
-        #select P random elements as the training set
+    for P in Pvalues:
         indices = torch.randperm(data.size(0))[:P]
         data_to_use = data[indices].clone()
 
-        #train the model
         model = PLLModel(input_dim=N, output_dim=N)
         model = model.to("cuda")
-        model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=1, batch_size=P, epochs=5000)
+        model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=100, batch_size=P, epochs=1000, decay_factor=0.99)
+
+        weight_matrix = model.linear.weight.detach()
+        Jinf = (weight_matrix + weight_matrix.T) / 2
+
+        frac = 0  # Fraction of spins to flip
+        starting_point = data_to_use.clone()
+        num_flips = int(frac * starting_point.numel())
+        flip_indices = torch.randperm(starting_point.numel(), device=DEVICE)[:num_flips]
+        starting_point.view(-1)[flip_indices] *= -1
         
-        #perform 1000 steps of zero temperature dynamics
         result = data_to_use.clone()
         with torch.no_grad():
-            for i in range(zero_temp_dynamics_steps):
+            for i in range(100):
                 result = zero_temperature_dynamics(model.linear.weight.T, result)
-        
-        #Compute the Mattis magnetizations with respsect to the training data
         magnetizations = ((N-torch.sum(torch.abs(result-data_to_use)/2, axis = 1))/N).mean()
-        energy_training = compute_energy(result, J, take_mean=True)
-        segni = torch.sign(result.sum(axis = 1))
-        closer = torch.einsum("ij, i->ij", result, segni)
-        gs_distance_training = torch.abs(closer-1).mean()/2
+        energy_training = compute_energy(result, Jinf, take_mean=True)/N
 
-        #select new P random elements as the test set
+        #test set
         indices = torch.randperm(data.size(0))[:P]
         data_test = data[indices].clone()
         result = data_test.clone()
-        #perform the zero temperature dyamics for the test set
         with torch.no_grad():
-            for i in range(zero_temp_dynamics_steps):
+            for i in range(100):
                 result = zero_temperature_dynamics(model.linear.weight.T, result)
-
-        #Compute the Mattis magnetizations with respect to the test data
         magnetizations_test = ((N-torch.sum(torch.abs(result-data_test)/2, axis = 1))/N).mean()
-        energy_test = compute_energy(result, J, take_mean=True)
-        segni = torch.sign(result.sum(axis = 1))
-        closer = torch.einsum("ij, i->ij", result, segni)
-        gs_distance_test = torch.abs(closer-1).mean()/2
+        energy_test = compute_energy(result, Jinf, take_mean=True)/N
 
-        #save the results
-        torch.cuda.empty_cache()
-        all_ms.append([P, magnetizations, magnetizations_test, energy_training, energy_test, gs_distance_training, gs_distance_test])
+
+        GS = torch.ones((2, N), device = "cuda")
+        result = torch.ones((2, N), device = "cuda")
+        with torch.no_grad():
+            for i in range(100):
+                result = zero_temperature_dynamics(model.linear.weight.T, result)
+        magnetizations_GS = ((N-torch.sum(torch.abs(result-GS)/2, axis = 1))/N).mean()
+        energy_GS = compute_energy(result, Jinf, take_mean=True)/N
+
+        #weight_matrix_end = weight_matrix.T
+        tgt = J/T
+        gamma = torch.sqrt(((Jinf-tgt)**2).sum()/(tgt**2).sum())
+        R = torch.sum(Jinf*tgt)/torch.norm(tgt)/torch.norm(Jinf)
+
+        all_ms.append([P, magnetizations, magnetizations_test, magnetizations_GS, energy_training, energy_test, energy_GS, gamma, R])
+        
+        #comment out to avoid print 
+        #print(P, float(magnetizations), float(magnetizations_test), float(magnetizations_GS), float(energy_training), float(energy_test), float(energy_GS), float(gamma), float(R))
     all_ms = np.array(all_ms)
+    
     with open(f'../../../Dati/Omega/Results/L{L}_seed{seed}/L{L}_seed{seed}_T{T:.2f}.txt', 'a') as f:
         np.savetxt(f, all_ms)
