@@ -33,9 +33,9 @@ asymptotics = asymptotics[asymptotics["T"] == T]
 
 # Plotting
 plt.figure(figsize=(10, 6))
-plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 1], marker='o', linestyle='-', color='teal', label='Training')
-plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 2], marker='o', linestyle='-', color='firebrick', label='Test')
-plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 3], marker='o', linestyle='-', color='goldenrod', label='GS')
+plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 4], marker='o', linestyle='-', color='teal', label='Training')
+plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 5], marker='o', linestyle='-', color='firebrick', label='Test')
+plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 6], marker='o', linestyle='-', color='goldenrod', label='GS')
 
 # Plot horizontal line at magnetization perfect
 plt.axhline(y=asymptotics["m_perf"].values[0], color='black', linestyle='--', label=r'$P = \infty$')
@@ -44,10 +44,14 @@ plt.axhline(y=asymptotics["m_train"].values[0], color='darkgray', linestyle='-.'
 
 # Adding labels and title
 plt.xlabel(r'$\alpha$', fontsize=20)
-plt.ylabel('Magnetization', fontsize=20)
-plt.title(f'T = {T:.2f}\nN = 256, 5000 epochs with GD and Exponential Decay\n1000 zero-temperature steps', fontsize=16)
-plt.xticks(fontsize=16)
-plt.yticks(fontsize=16)
+plt.ylabel('Energy', fontsize=20)
+plt.xticks(fontsize=28)
+plt.yticks(fontsize=28)
+plt.xlabel(r'$\alpha$', fontsize=28)
+plt.ylabel('Energy', fontsize=28)
+plt.title(f'T = {T:.2f}\nN = 256, 5000 epochs with GD and Exponential Decay\n1000 zero-temperature steps', fontsize=28)
+plt.legend(fontsize=28, ncol=2)
+plt.legend(fontsize=28)
 
 # Adding grid
 plt.grid(True)
@@ -65,11 +69,12 @@ plt.tight_layout()
 plt.tight_layout()
 
 #lin-scale
-plt.xlim(0,2500/N)
-plt.savefig(f"../Figures/stability_withP_L16_T{T:.2f}_lin.png")
+plt.xlim(0.3,3)
+plt.savefig(f"../Figures/energy_L16_T{T:.2f}_lin.png")
 
 #log-scale
 plt.xscale('log')
-plt.xlim(1/N,15000/N)
-plt.savefig(f"../Figures/stability_withP_L16_T{T:.2f}_log.png")
+plt.xlim(0.3,30)
+plt.ylim(-2 , 3)
+plt.savefig(f"../Figures/energy_L16_T{T:.2f}_log.png")
 #############################################
