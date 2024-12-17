@@ -38,8 +38,8 @@ plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 5], marker='o', linestyle='-', color='f
 plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 6], marker='o', linestyle='-', color='goldenrod', label='GS')
 
 # Plot horizontal line at magnetization perfect
-plt.axhline(y=asymptotics["m_perf"].values[0], color='black', linestyle='--', label=r'$P = \infty$')
-plt.axhline(y=asymptotics["m_train"].values[0], color='darkgray', linestyle='-.', label='P = 131072')
+#plt.axhline(y=asymptotics["m_perf"].values[0], color='black', linestyle='--', label=r'$P = \infty$')
+#plt.axhline(y=asymptotics["m_train"].values[0], color='darkgray', linestyle='-.', label='P = 131072')
 
 
 # Adding labels and title
@@ -49,7 +49,7 @@ plt.xticks(fontsize=28)
 plt.yticks(fontsize=28)
 plt.xlabel(r'$\alpha$', fontsize=28)
 plt.ylabel('Energy', fontsize=28)
-plt.title(f'T = {T:.2f}\nN = 256, 5000 epochs with GD and Exponential Decay\n1000 zero-temperature steps', fontsize=28)
+plt.title(f'T = {T:.2f}\nN = 256, 5000 epochs with GD and\nExponential Decay,\n1000 zero-temperature steps', fontsize=28)
 plt.legend(fontsize=28, ncol=2)
 plt.legend(fontsize=28)
 
@@ -69,12 +69,15 @@ plt.tight_layout()
 plt.tight_layout()
 
 #lin-scale
-plt.xlim(0.3,3)
+#plt.xlim(0.3,3)
 plt.savefig(f"../Figures/energy_L16_T{T:.2f}_lin.png")
 
 #log-scale
 plt.xscale('log')
-plt.xlim(0.3,30)
-plt.ylim(-2 , 3)
+plt.yscale('symlog', linthresh=2)
+
+#plt.xlim(0.3,30)
+#plt.ylim(-2 , 3)
+plt.tight_layout()
 plt.savefig(f"../Figures/energy_L16_T{T:.2f}_log.png")
-#############################################
+############################################

@@ -19,11 +19,11 @@ magnetization_perfect = 0.8846750259399414 #value of the test_magnetization when
 
 # Plotting
 plt.figure(figsize=(10, 6))
-plt.plot(all_ms_np[:, 0], all_ms_np[:, 1], marker='o', linestyle='-', color='teal', label='Magnetization')
-plt.plot(all_ms_np[:, 0], all_ms_np[:, 2], marker='o', linestyle='-', color='firebrick', label='Magnetization test')
+plt.plot(all_ms_np[:, 0], 2*all_ms_np[:, 1]-1, marker='o', linestyle='-', color='teal', label='Magnetization')
+plt.plot(all_ms_np[:, 0], 2*all_ms_np[:, 2]-1, marker='o', linestyle='-', color='firebrick', label='Magnetization test')
 # Plot horizontal line at magnetization perfect
-plt.axhline(y=magnetization_perfect, color='black', linestyle='--', label=r'$P = \infty$')
-#plt.axhline(y=magnetizations_largealpha_test.item(), color='darkgray', linestyle=':', label='Perfect Magnetization')
+plt.axhline(y=2*magnetization_perfect-1, color='black', linestyle='--', label=r'$P = \infty$')
+#plt.axhline(y=2*magnetizations_largealpha_test.item()-1, color='darkgray', linestyle=':', label='Perfect Magnetization')
 
 
 # Adding labels and title

@@ -19,8 +19,11 @@ seed = 3397150145
 data = pd.read_csv(f"../../Dati/Omega/Results/L16_seed{seed}/L16_seed{seed}_T{T:.2f}.txt", sep=" ", header = None, names = ["P", "m_train", "m_test", "m_GS", "E_train", "E_test", "E_gs", "gamma","R"])
 count_P_equals_1 = data[data["P"] == 1].shape[0]
 print(f"Used {count_P_equals_1} runs")
-data = data.groupby("P").mean().reset_index()
-all_ms_np = data.to_numpy()
+data_means = data.groupby("P").mean().reset_index()
+errors = data.groupby("P").std().reset_index()
+all_ms_np = data_means.to_numpy()
+errors_np = errors.to_numpy()
+
 
 asymptotics = pd.read_csv(f"../../Dati/Omega/Results/L16_seed{seed}/asymptotics.txt", sep=" ", header = None, names = ["T", "m_train", "m_test", "m_perf", "E_training", "E_test", "E_perfect", "gsdist_train", "gsdist_test", "gsdist_perfect"])
 asymptotics = asymptotics[asymptotics["T"] == T]
@@ -33,19 +36,19 @@ asymptotics = asymptotics[asymptotics["T"] == T]
 
 # Plotting
 plt.figure(figsize=(10, 6))
-plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 1], marker='o', linestyle='-', color='teal', label='Training')
-plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 2], marker='o', linestyle='-', color='firebrick', label='Test')
-plt.plot(all_ms_np[:, 0]/N, all_ms_np[:, 3], marker='o', linestyle='-', color='goldenrod', label='GS')
+plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 1]-1, yerr = 2*errors_np[:,1]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='teal', label='Training')
+plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 2]-1, yerr = 2*errors_np[:,2]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='firebrick', label='Test')
+plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 3]-1, yerr = 2*errors_np[:,3]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='goldenrod', label='GS')
 
 # Plot horizontal line at magnetization perfect
-plt.axhline(y=asymptotics["m_perf"].values[0], color='black', linestyle='--', label=r'$P = \infty$')
-plt.axhline(y=asymptotics["m_train"].values[0], color='darkgray', linestyle='-.', label='P = 131072')
+plt.axhline(y=2*asymptotics["m_perf"].values[0]-1, color='black', linestyle='--', label=r'$P = \infty$')
+plt.axhline(y=2*asymptotics["m_train"].values[0]-1, color='darkgray', linestyle='-.', label='P = 131072')
 
 
 # Adding labels and title
 plt.xlabel(r'$\alpha$', fontsize=20)
 plt.ylabel('Magnetization', fontsize=20)
-plt.title(f'T = {T:.2f}\nN = 256, 5000 epochs with GD and Exponential Decay\n1000 zero-temperature steps', fontsize=16)
+plt.title(f'T = {T:.2f}, N = 256,\n {count_P_equals_1} runs, 1000 epochs with GD and Exponential Decay\n1000 zero-temperature steps', fontsize=16)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 

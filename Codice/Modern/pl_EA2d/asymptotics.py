@@ -33,7 +33,7 @@ if __name__ == "__main__":
     #train the model
     model = PLLModel(input_dim=N, output_dim=N)
     model = model.to("cuda")
-    model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=1, batch_size=P, epochs=5000)
+    model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=100, batch_size=P, epochs=1000, decay_factor=0.99)
     
     #perform 1000 steps of zero temperature dynamics
     result = data_to_use.clone()
