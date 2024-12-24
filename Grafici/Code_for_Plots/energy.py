@@ -74,10 +74,10 @@ plt.savefig(f"../Figures/energy_L16_T{T:.2f}_lin.png")
 
 #log-scale
 plt.xscale('log')
-plt.yscale('symlog', linthresh=2)
+plt.yscale('symlog', linthresh=0.01)
 
-#plt.xlim(0.3,30)
-#plt.ylim(-2 , 3)
+plt.xlim(0.3,30)
+plt.ylim(-5 ,-2)
 plt.tight_layout()
 plt.savefig(f"../Figures/energy_L16_T{T:.2f}_log.png")
 ############################################

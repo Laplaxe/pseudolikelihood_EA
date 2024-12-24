@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Train PLLModel with specified temperature.')
-    parser.add_argument('--temperature', type=float, required=True, help='Temperature value for the simulation')
+    parser.add_argument('--temperature', type=str, required=True, help='Temperature value for the simulation')
     args = parser.parse_args()
 
     # Use the temperature argument
@@ -133,9 +133,13 @@ if __name__ == "__main__":
     L = 16
     N = L*L
     data, J, _, _ = get_data(L, T, seed, RUN = 1, back = "../../../Dati/Alpha", ordering = "raster")
+    data2, _, _, _ = get_data(L, T, seed, RUN = 2, back = "../../../Dati/Alpha", ordering = "raster")
+    
     #and set the simulations parameters
     zero_temp_dynamics_steps = 1000 #number of zero temperature dynamics steps to perform (both for training and test)
     Pvalues = np.concatenate((np.arange(1, 30, 2), np.logspace(np.log10(31), np.log10(15000), num=200, dtype=int))) # number of training data on which to loop
+
+    T = float(T)
 
     all_ms = []
     for P in Pvalues:
@@ -164,7 +168,7 @@ if __name__ == "__main__":
 
         #test set
         indices = torch.randperm(data.size(0))[:P]
-        data_test = data[indices].clone()
+        data_test = data2[indices].clone()
         result = data_test.clone()
         with torch.no_grad():
             for i in range(100):
