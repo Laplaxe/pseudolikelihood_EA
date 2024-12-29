@@ -10,19 +10,22 @@ if __name__ == "__main__":
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Train PLLModel with specified temperature.')
-    parser.add_argument('--temperature', type=float, required=True, help='Temperature value for the simulation')
+    parser.add_argument('--temperature', type=str, required=True, help='Temperature value for the simulation')
     args = parser.parse_args()
 
     # Use the temperature argument
     T = args.temperature
 
     #load the data
-    seed = 3397150145
-    L = 16
+    #seed = 3397150145
+    seed = 3034024510
+    #L = 16
+    L = 32
     N = L*L
     data, J, _, _ = get_data(L, T, seed, RUN = 1, back = "../../../Dati/Alpha", ordering = "raster")
-    data2, _, _, _ = get_data(L, T, seed, RUN = 2, back = "../../../Dati/Alpha", ordering = "raster")
-    
+    data2, _, _, _ = get_data(L, T, seed, RUN = 1, back = "../../../Dati/Alpha", ordering = "raster")
+    T = float(T)
+
     #and set the simulations parameters
     zero_temp_dynamics_steps = 1000 #number of zero temperature dynamics steps to perform (both for training and test)
     P = len(data)
@@ -33,13 +36,13 @@ if __name__ == "__main__":
     #train the model
     model = PLLModel(input_dim=N, output_dim=N)
     model = model.to("cuda")
-    model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=100, batch_size=P, epochs=1000, decay_factor=0.99)
+    model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=100, batch_size=P, epochs=1000, decay_factor=0.999)
     
     #perform 1000 steps of zero temperature dynamics
     result = data_to_use.clone()
     with torch.no_grad():
         for i in range(zero_temp_dynamics_steps):
-            result = zero_temperature_dynamics(model.linear.weight.T, result)
+            result = zero_temperature_dynamics(model.linear.weight, result)
     
     #Compute the Mattis magnetizations with respsect to the training data
     magnetizations = ((N-torch.sum(torch.abs(result-data_to_use)/2, axis = 1))/N).mean()
@@ -54,7 +57,7 @@ if __name__ == "__main__":
     #perform the zero temperature dyamics for the test set
     with torch.no_grad():
         for i in range(zero_temp_dynamics_steps):
-            result = zero_temperature_dynamics(model.linear.weight.T, result)
+            result = zero_temperature_dynamics(model.linear.weight, result)
 
     #Compute the Mattis magnetizations with respect to the test data
     magnetizations_test = ((N-torch.sum(torch.abs(result-data_test)/2, axis = 1))/N).mean()

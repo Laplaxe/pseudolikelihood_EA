@@ -128,16 +128,18 @@ if __name__ == "__main__":
     # Use the temperature argument
     T = args.temperature
 
-    #load the data
-    seed = 3397150145
-    L = 16
+    #load the data. You can choose the size and the seed here
+    #seed = 3397150145
+    #L = 16
+    seed = 3034024510
+    L = 32
     N = L*L
     data, J, _, _ = get_data(L, T, seed, RUN = 1, back = "../../../Dati/Alpha", ordering = "raster")
-    data2, _, _, _ = get_data(L, T, seed, RUN = 2, back = "../../../Dati/Alpha", ordering = "raster")
+    data2, _, _, _ = get_data(L, T, seed, RUN = 1, back = "../../../Dati/Alpha", ordering = "raster")
     
     #and set the simulations parameters
-    zero_temp_dynamics_steps = 1000 #number of zero temperature dynamics steps to perform (both for training and test)
-    Pvalues = np.concatenate((np.arange(1, 30, 2), np.logspace(np.log10(31), np.log10(15000), num=200, dtype=int))) # number of training data on which to loop
+    zero_temp_dynamics_steps = 100 #number of zero temperature dynamics steps to perform (both for training and test)
+    Pvalues = np.concatenate((np.arange(1, 30, 2), np.logspace(np.log10(31), np.log10(65536), num=200, dtype=int))) # number of training data on which to loop
 
     T = float(T)
 
@@ -148,7 +150,7 @@ if __name__ == "__main__":
 
         model = PLLModel(input_dim=N, output_dim=N)
         model = model.to("cuda")
-        model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=100, batch_size=P, epochs=1000, decay_factor=0.99)
+        model = train_pll_model(model, data_to_use, (data_to_use+1)/2, learning_rate=100, batch_size=P, epochs=1000, decay_factor=0.999)
 
         weight_matrix = model.linear.weight.detach()
         Jinf = (weight_matrix + weight_matrix.T) / 2
@@ -161,8 +163,8 @@ if __name__ == "__main__":
         
         result = data_to_use.clone()
         with torch.no_grad():
-            for i in range(100):
-                result = zero_temperature_dynamics(model.linear.weight.T, result)
+            for i in range(zero_temp_dynamics_steps):
+                result = zero_temperature_dynamics(model.linear.weight, result)
         magnetizations = ((N-torch.sum(torch.abs(result-data_to_use)/2, axis = 1))/N).mean()
         energy_training = compute_energy(result, Jinf, take_mean=True)/N
 
@@ -171,8 +173,8 @@ if __name__ == "__main__":
         data_test = data2[indices].clone()
         result = data_test.clone()
         with torch.no_grad():
-            for i in range(100):
-                result = zero_temperature_dynamics(model.linear.weight.T, result)
+            for i in range(zero_temp_dynamics_steps):
+                result = zero_temperature_dynamics(model.linear.weight, result)
         magnetizations_test = ((N-torch.sum(torch.abs(result-data_test)/2, axis = 1))/N).mean()
         energy_test = compute_energy(result, Jinf, take_mean=True)/N
 
@@ -180,8 +182,8 @@ if __name__ == "__main__":
         GS = torch.ones((2, N), device = "cuda")
         result = torch.ones((2, N), device = "cuda")
         with torch.no_grad():
-            for i in range(100):
-                result = zero_temperature_dynamics(model.linear.weight.T, result)
+            for i in range(zero_temp_dynamics_steps):
+                result = zero_temperature_dynamics(model.linear.weight, result)
         magnetizations_GS = ((N-torch.sum(torch.abs(result-GS)/2, axis = 1))/N).mean()
         energy_GS = compute_energy(result, Jinf, take_mean=True)/N
 
