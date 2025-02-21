@@ -36,10 +36,10 @@ asymptotics = asymptotics[asymptotics["T"] == T]
 # Convert all_ms to numpy array if it's not already
 
 # Plotting
-plt.figure(figsize=(10, 6))
-plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 1]-1, yerr = 2*errors_np[:,1]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='teal', label='Training')
-plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 2]-1, yerr = 2*errors_np[:,2]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='firebrick', label='Test')
-plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 3]-1, yerr = 2*errors_np[:,3]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='goldenrod', label='GS')
+plt.figure(figsize=(4, 3))
+plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 1]-1, yerr = 2*errors_np[:,1]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', lw = 1,markersize = 1, color='teal', label='Training')
+plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 2]-1, yerr = 2*errors_np[:,2]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', lw = 1,markersize = 1, color='firebrick', label='Test')
+#plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 3]-1, yerr = 2*errors_np[:,3]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='goldenrod', label='GS')
 
 # Plot horizontal line at magnetization perfect
 plt.axhline(y=2*asymptotics["m_perf"].values[0]-1, color='black', linestyle='--', label=r'$P = \infty$')
@@ -47,17 +47,17 @@ plt.axhline(y=2*asymptotics["m_train"].values[0]-1, color='darkgray', linestyle=
 
 
 # Adding labels and title
-plt.xlabel(r'$\alpha$', fontsize=20)
-plt.ylabel('Magnetization', fontsize=20)
+plt.xlabel(r'$\alpha$')
+plt.ylabel('Magnetization')
 #plt.title(f'T = {T:.2f}, N = 256,\n {count_P_equals_1} runs, 1000 epochs with GD and Exponential Decay\n1000 zero-temperature steps', fontsize=16)
-plt.xticks(fontsize=16)
-plt.yticks(fontsize=16)
+plt.xticks()
+plt.yticks()
 
 # Adding grid
-plt.grid(True)
+plt.grid(True, lw = 0.2)
 
 # Adding legend
-plt.legend(fontsize=20)
+plt.legend()
 
 # Improving layout
 plt.tight_layout()
@@ -70,10 +70,13 @@ plt.tight_layout()
 
 #lin-scale
 #plt.xlim(0,2500/N)
+plt.savefig(f"../Figures/stability_withP_L{L}_T{T:.2f}_lin.pdf")
 plt.savefig(f"../Figures/stability_withP_L{L}_T{T:.2f}_lin.png")
 
 #log-scale
 plt.xscale('log')
 plt.xlim(1/N,65536/N)
+plt.savefig(f"../Figures/stability_withP_L{L}_T{T:.2f}_log.pdf")
 plt.savefig(f"../Figures/stability_withP_L{L}_T{T:.2f}_log.png")
+
 #############################################
