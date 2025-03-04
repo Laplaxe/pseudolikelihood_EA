@@ -43,7 +43,7 @@ plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 2]-1, yerr = 2*errors_np[:,2]/np.
 
 # Plot horizontal line at magnetization perfect
 plt.axhline(y=2*asymptotics["m_perf"].values[0]-1, color='black', linestyle='--', label=r'$P = \infty$')
-plt.axhline(y=2*asymptotics["m_train"].values[0]-1, color='darkgray', linestyle='-.', label='P = 131072')
+plt.axhline(y=2*asymptotics["m_train"].values[0]-1, color='darkgray', linestyle='-.', label='$P = 131072$')
 
 
 # Adding labels and title
