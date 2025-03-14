@@ -17,7 +17,7 @@ L = 32
 N = L*L
 
 seed = 3034024510
-data = pd.read_csv(f"../../Dati/Omega/Results/L{L}_seed{seed}/L{L}_seed{seed}_T{T:.2f}.txt", sep=" ", header = None, names = ["P", "m_train", "m_test", "m_GS", "E_train", "E_test", "E_gs", "gamma","R"])
+data = pd.read_csv(f"../../Dati/Omega/Results/L{L}_seed{seed}/L{L}_seed{seed}_T{T:.2f}.txt", sep=" ", header = None, names = ["P", "m_train", "m_test", "m_GS", "m_rand", "E_train", "E_test", "E_gs", "E_rand","gamma","R"])
 count_P_equals_1 = data[data["P"] == 1].shape[0]
 print(f"Used {count_P_equals_1} runs")
 data_means = data.groupby("P").mean().reset_index()
@@ -39,6 +39,7 @@ asymptotics = asymptotics[asymptotics["T"] == T]
 plt.figure(figsize=(4, 3))
 plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 1]-1, yerr = 2*errors_np[:,1]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', lw = 1,markersize = 1, color='teal', label='Training')
 plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 2]-1, yerr = 2*errors_np[:,2]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', lw = 1,markersize = 1, color='firebrick', label='Test')
+plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 4]-1, yerr = 2*errors_np[:,4]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', lw = 1,markersize = 1, color='goldenrod', label='Random')
 #plt.errorbar(all_ms_np[:, 0]/N, 2*all_ms_np[:, 3]-1, yerr = 2*errors_np[:,3]/np.sqrt(count_P_equals_1),marker='o', linestyle='-', markersize = 1, color='goldenrod', label='GS')
 
 # Plot horizontal line at magnetization perfect

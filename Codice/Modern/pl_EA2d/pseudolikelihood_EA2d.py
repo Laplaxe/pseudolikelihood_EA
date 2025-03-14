@@ -178,7 +178,16 @@ if __name__ == "__main__":
         magnetizations_test = ((N-torch.sum(torch.abs(result-data_test)/2, axis = 1))/N).mean()
         energy_test = compute_energy(result, Jinf, take_mean=True)/N
 
+        #random
+        result = (torch.randint(0, 2, (P, N), device=DEVICE).float() * 2.) - 1.
+        start_random = result.clone()
+        with torch.no_grad():
+            for i in range(zero_temp_dynamics_steps):
+                result = zero_temperature_dynamics(model.linear.weight, result)
+        magnetizations_random = ((N-torch.sum(torch.abs(result-start_random)/2, axis = 1))/N).mean()
+        energy_random = compute_energy(result, Jinf, take_mean=True)/N
 
+        #GS
         GS = torch.ones((2, N), device = "cuda")
         result = torch.ones((2, N), device = "cuda")
         with torch.no_grad():
@@ -192,7 +201,7 @@ if __name__ == "__main__":
         gamma = torch.sqrt(((Jinf-tgt)**2).sum()/(tgt**2).sum())
         R = torch.sum(Jinf*tgt)/torch.norm(tgt)/torch.norm(Jinf)
 
-        all_ms.append([P, magnetizations, magnetizations_test, magnetizations_GS, energy_training, energy_test, energy_GS, gamma, R])
+        all_ms.append([P, magnetizations, magnetizations_test, magnetizations_GS, magnetizations_random, energy_training, energy_test, energy_GS, energy_random, gamma, R])
         
         #comment out to avoid print 
         #print(P, float(magnetizations), float(magnetizations_test), float(magnetizations_GS), float(energy_training), float(energy_test), float(energy_GS), float(gamma), float(R))
